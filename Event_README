@@ -1,0 +1,44 @@
+```js
+/** Worksheet DataChanged event */
+Excel.run(function (ctx) {
+    ctx.workbook.worksheets.getItem(“Sheet1”).onDataChanged.add(onWorksheetDataChanged);
+    return ctx.sync().then(function () {
+        console.log("add event succeed.");
+    });
+}).catch(function (error) {
+    console.log("Error: " + error);
+    if (error instanceof OfficeExtension.Error) {
+        console.log("Debug info: " + JSON.stringify(error.debugInfo));
+    }
+});
+
+function onWorksheetDataChanged(event) {
+    return Excel.run(event, function (context) {
+        var worksheet = event.worksheet;
+        var range = event.range;
+        var source = event.source;
+        var changeType = event.changeType;
+
+        worksheet.load("name");
+        range.load("address, cellCount");
+
+        return context.sync().then(function () {
+            // Get the changed range
+            console.log("Data Changed in worksheet " + worksheet.name + ".Changed area address is " + range.address + "cell count in the range is" + range.cellCount);
+            //Get the event source, data change comes from local or remote.
+            console.log("Data Change comes from" + source);
+          
+            //get the new inserted Row.
+            else if (changeType == "RowInsert") {
+                console.log("Row inserted on row" + range.address);
+            }
+            //else if ... //For RowDelete, ColumnInsert, ColumnDelete, same as above.
+
+            // Other changes happened
+            else {
+                console.log("Other changes happened");
+            }
+        });
+    });
+}
+```
